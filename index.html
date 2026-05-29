@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karga - Panneau Admin & Dépôt</title>
+    <title>Karga - Panneau Configuration Gros</title>
     <style>
         body { font-family: sans-serif; margin: 15px; background: #f0f2f5; color: #333; }
         .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         h2 { margin-top: 0; color: #1a365d; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        label { font-size: 0.85rem; font-weight: bold; color: #4a5568; }
+        label { font-size: 0.85rem; font-weight: bold; color: #4a5568; margin-top: 5px; display: block; }
         input, select { width: 100%; padding: 10px; margin: 5px 0 12px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 6px; }
         button { width: 100%; padding: 12px; background: #1a365d; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
         .grid-actions { display: flex; gap: 10px; margin-top: 5px; }
@@ -21,69 +21,107 @@
 </head>
 <body>
 
-    <h1>Karga Admin 🚧</h1>
-    <p style="font-size: 0.9rem; color: #64748b;">Dépôt Central - Matola</p>
+    <h1>Karga Universel 🚧</h1>
+    <p style="font-size: 0.9rem; color: #64748b;">Panneau de Configuration Entreprise</p>
 
-    <!-- ZONE DU PATRON (SÉCURISÉE) -->
     <div class="card" style="border-left: 5px solid #e53e3e;">
-        <h2>1. Contrôle du Taux (Patron Uniquement)</h2>
+        <h2>1. Contrôle du Taux (Patron)</h2>
         <label>Taux du Dollar du jour (1 USD ➔ MT) :</label>
         <input type="number" id="taux-dollar" value="64.50" step="0.01">
-        <button style="background: #e53e3e;" onclick="mettreAJourTaux()">Enregistrer et Bloquer le Taux</button>
+        <button style="background: #e53e3e;" onclick="mettreAJourTaux()">Fixer le Taux pour l'Entreprise</button>
     </div>
 
-    <!-- ZONE DU CONTREMAÎTRE (MOUVEMENTS DE STOCK) -->
+    <div class="card" style="border-left: 5px solid #6b46c1;">
+        <h2>2. Ajouter un Nouveau Matériau au Catalogue (Patron/Acheteur)</h2>
+        <p style="font-size: 0.8rem; color: #718096; margin-top: 0;">Permet d'adapter l'application à n'importe quel fournisseur (Fer, Ciment, Alimentaire...)</p>
+        
+        <label>Nom exact du produit et conditionnement :</label>
+        <input type="text" id="new-nom" placeholder="ex: Peinture Blanche Satinée (Bidon 20L)">
+        
+        <label>Prix d'achat Usine / Import ($ USD) :</label>
+        <input type="number" id="new-prix" placeholder="ex: 45">
+        
+        <label>Stock initial au dépôt :</label>
+        <input type="number" id="new-stock" placeholder="ex: 200">
+        
+        <button style="background: #6b46c1;" onclick="creerNouveauProduit()">➕ Ajouter définitivement au Catalogue</button>
+    </div>
+
     <div class="card" style="border-left: 5px solid #3182ce;">
-        <h2>2. Entrées / Sorties de Marchandise (Contremaître)</h2>
-        <label>Sélectionner le Matériau dans le stock :</label>
+        <h2>3. Mouvements de Stock Journaliers (Contremaître)</h2>
+        <label>Choisir le produit à modifier :</label>
         <select id="select-produit">
-            <option value="fer12">Fer à béton 12mm (Tonne)</option>
-            <option value="fer10">Fer à béton 10mm (Tonne)</option>
-            <option value="fer8">Fer à béton 8mm (Tonne)</option>
-            <option value="cimento">Ciment Dugongo 42.5 (Palette)</option>
-            <option value="chapas">Tôles IBR 6m (Paquet)</option>
+            <option value="Fer à béton 12mm">Fer à béton 12mm (Tonne)</option>
+            <option value="Ciment Dugongo 42.5">Ciment Dugongo 42.5 (Palette)</option>
         </select>
         
-        <label>Quantité du mouvement (Nombre de tonnes/palettes/paquets) :</label>
-        <input type="number" id="mouvement-quantite" placeholder="ex: 5" min="1">
+        <label>Quantité qui entre ou qui sort :</label>
+        <input type="number" id="mouvement-quantite" placeholder="ex: 10" min="1">
         
         <div class="grid-actions">
-            <button class="btn-add" onclick="changerStock('ajouter')">➕ ENTRÉE (Arrivée)</button>
-            <button class="btn-remove" onclick="changerStock('retirer')">➖ SORTIE (Vente)</button>
+            <button class="btn-add" onclick="changerStock('ajouter')">➕ ENTRÉE DÉPÔT</button>
+            <button class="btn-remove" onclick="changerStock('SORTIE (VENTE)')">➖ SORTIE DÉPÔT</button>
         </div>
     </div>
 
-    <!-- ÉTAT GÉNÉRAL DU STOCK -->
     <div class="card">
-        <h2>3. Liste Complète du Stock Réel</h2>
+        <h2>4. Aperçu du Stock Actuel</h2>
         <table>
             <thead>
                 <tr>
                     <th>Matériau</th>
-                    <th>Prix ($)</th>
-                    <th>En Stock</th>
+                    <th>Prix Usine</th>
                 </tr>
             </thead>
             <tbody id="tableau-stock">
-                <tr><td><b>Fer à béton 12mm</b></td><td>750.00 $</td><td><b style="color: #3182ce;">45 T</b></td></tr>
-                <tr><td><b>Fer à béton 10mm</b></td><td>760.00 $</td><td><b style="color: #3182ce;">20 T</b></td></tr>
-                <tr><td><b>Fer à béton 8mm</b></td><td>770.00 $</td><td><b style="color: #3182ce;">15 T</b></td></tr>
-                <tr><td><b>Ciment Dugongo 42.5</b></td><td>280.00 $</td><td><b style="color: #3182ce;">120 P</b></td></tr>
-                <tr><td><b>Tôles IBR 6m</b></td><td>190.00 $</td><td><b style="color: #3182ce;">35 Paquets</b></td></tr>
+                <tr><td><b>Fer à béton 12mm</b></td><td>750.00 $</td></tr>
+                <tr><td><b>Ciment Dugongo 42.5</b></td><td>280.00 $</td></tr>
             </tbody>
         </table>
     </div>
 
     <script>
+        // Code pour faire fonctionner la maquette en direct sur ton écran
+        function creerNouveauProduit() {
+            let nom = document.getElementById('new-nom').value;
+            let prix = document.getElementById('new-prix').value;
+            let stock = document.getElementById('new-stock').value;
+
+            if(!nom || !prix || !stock) {
+                return alert("Veuillez remplir toutes les cases pour créer le produit.");
+            }
+
+            // 1. Ajouter le produit dans le menu déroulant du contremaître
+            let select = document.getElementById('select-produit');
+            let option = document.createElement('option');
+            option.value = nom;
+            option.textContent = nom;
+            select.appendChild(option);
+
+            // 2. Ajouter le produit dans le tableau visuel
+            let tableau = document.getElementById('tableau-stock');
+            let ligne = document.createElement('tr');
+            ligne.innerHTML = "<td><b>" + nom + "</b></td><td>" + parseFloat(prix).toFixed(2) + " $</td>";
+            tableau.appendChild(ligne);
+
+            alert("Succès ! '" + nom + "' fait maintenant partie de ton catalogue. (Prochaine étape: Sauvegarde automatique globale sur Firestore)");
+            
+            // Vider les cases
+            document.getElementById('new-nom').value = "";
+            document.getElementById('new-prix').value = "";
+            document.getElementById('new-stock').value = "";
+        }
+
         function mettreAJourTaux() {
             let t = document.getElementById('taux-dollar').value;
-            alert("Taux enregistré à " + t + " MT. (Bientôt connecté à Firestore)");
+            alert("Taux de référence fixé à : " + t + " MT.");
         }
+
         function changerStock(action) {
             let q = document.getElementById('mouvement-quantite').value;
             let p = document.getElementById('select-produit').value;
             if(!q) return alert("Tapez une quantité");
-            alert("Action : " + action + " de " + q + " unités pour le produit [" + p + "]. (Bientôt sauvé dans Firestore)");
+            alert("Mouvement enregistré : " + action + " de " + q + " unités pour [" + p + "].");
         }
     </script>
 </body>
