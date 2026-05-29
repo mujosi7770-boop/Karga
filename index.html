@@ -3,125 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karga - Panneau Configuration Gros</title>
+    <title>Karga - Gestion Ultra-Simple</title>
     <style>
-        body { font-family: sans-serif; margin: 15px; background: #f0f2f5; color: #333; }
-        .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        h2 { margin-top: 0; color: #1a365d; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        label { font-size: 0.85rem; font-weight: bold; color: #4a5568; margin-top: 5px; display: block; }
-        input, select { width: 100%; padding: 10px; margin: 5px 0 12px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 6px; }
-        button { width: 100%; padding: 12px; background: #1a365d; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        .grid-actions { display: flex; gap: 10px; margin-top: 5px; }
-        .btn-add { background: #28a745; width: 50%; }
-        .btn-remove { background: #dc3545; width: 50%; }
+        body { font-family: sans-serif; margin: 15px; background: #f0f4f8; color: #102a43; }
+        .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        h2 { margin-top: 0; color: #102a43; font-size: 1.1rem; border-bottom: 2px solid #bcccdc; padding-bottom: 5px; }
+        label { font-size: 0.85rem; font-weight: bold; color: #486581; display: block; margin-top: 8px; }
+        input, select { width: 100%; padding: 12px; margin: 6px 0; box-sizing: border-box; border: 1px solid #bac7d5; border-radius: 6px; font-size: 1rem; }
+        button { width: 100%; padding: 12px; background: #627d98; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 5px; }
+        .btn-boss { background: #0b69a3; }
+        .btn-mouvement { background: #243b53; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border-bottom: 1px solid #e2e8f0; padding: 10px; text-align: left; font-size: 0.9rem; }
-        th { background: #f8fafc; color: #64748b; }
+        th, td { border-bottom: 1px solid #e4e7eb; padding: 12px 10px; text-align: left; font-size: 0.9rem; }
+        th { background: #f0f4f8; color: #486581; }
+        .badge-stock { background: #dceefb; color: #0b69a3; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .grid-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; }
+        .report-box { background: #f0f4f8; padding: 10px; border-radius: 6px; font-family: monospace; font-size: 0.85rem; white-space: pre-line; margin-top: 10px; border-left: 4px solid #627d98; }
     </style>
 </head>
 <body>
 
-    <h1>Karga Universel 🚧</h1>
-    <p style="font-size: 0.9rem; color: #64748b;">Panneau de Configuration Entreprise</p>
+    <h1>Karga Dépôt 🎯</h1>
 
-    <div class="card" style="border-left: 5px solid #e53e3e;">
-        <h2>1. Contrôle du Taux (Patron)</h2>
-        <label>Taux du Dollar du jour (1 USD ➔ MT) :</label>
-        <input type="number" id="taux-dollar" value="64.50" step="0.01">
-        <button style="background: #e53e3e;" onclick="mettreAJourTaux()">Fixer le Taux pour l'Entreprise</button>
-    </div>
-
-    <div class="card" style="border-left: 5px solid #6b46c1;">
-        <h2>2. Ajouter un Nouveau Matériau au Catalogue (Patron/Acheteur)</h2>
-        <p style="font-size: 0.8rem; color: #718096; margin-top: 0;">Permet d'adapter l'application à n'importe quel fournisseur (Fer, Ciment, Alimentaire...)</p>
+    <div class="card" style="border-top: 4px solid #243b53;">
+        <h2>1. Espace Contremaître (Création & Mouvements)</h2>
         
-        <label>Nom exact du produit et conditionnement :</label>
-        <input type="text" id="new-nom" placeholder="ex: Peinture Blanche Satinée (Bidon 20L)">
-        
-        <label>Prix d'achat Usine / Import ($ USD) :</label>
-        <input type="number" id="new-prix" placeholder="ex: 45">
-        
-        <label>Stock initial au dépôt :</label>
-        <input type="number" id="new-stock" placeholder="ex: 200">
-        
-        <button style="background: #6b46c1;" onclick="creerNouveauProduit()">➕ Ajouter définitivement au Catalogue</button>
-    </div>
-
-    <div class="card" style="border-left: 5px solid #3182ce;">
-        <h2>3. Mouvements de Stock Journaliers (Contremaître)</h2>
-        <label>Choisir le produit à modifier :</label>
-        <select id="select-produit">
-            <option value="Fer à béton 12mm">Fer à béton 12mm (Tonne)</option>
-            <option value="Ciment Dugongo 42.5">Ciment Dugongo 42.5 (Palette)</option>
-        </select>
-        
-        <label>Quantité qui entre ou qui sort :</label>
-        <input type="number" id="mouvement-quantite" placeholder="ex: 10" min="1">
-        
-        <div class="grid-actions">
-            <button class="btn-add" onclick="changerStock('ajouter')">➕ ENTRÉE DÉPÔT</button>
-            <button class="btn-remove" onclick="changerStock('SORTIE (VENTE)')">➖ SORTIE DÉPÔT</button>
+        <div style="background: #f0f4f8; padding: 10px; border-radius: 6px; margin-bottom: 15px;">
+            <span style="font-size: 0.8rem; font-weight: bold; color: #486581;">+ CRÉER UN NOUVEAU PRODUIT :</span>
+            
+            <div class="grid-3">
+                <input type="text" id="add-nom" placeholder="Nom du produit">
+                <input type="number" id="add-stock" placeholder="Stock départ">
+                <select id="add-unite">
+                    <option value="U">Quantité (U)</option>
+                    <option value="kg">Kilo (kg)</option>
+                    <option value="L">Litre (L)</option>
+                    <option value="m">Mètre (m)</option>
+                    <option value="T">Tonne (T)</option>
+                    <option value="Sacs">Sac(s)</option>
+                    <option value="Bidons">Bidon(s)</option>
+                </select>
+            </div>
+            <button style="background: #48bb78; padding: 8px;" onclick="ajouterNouveauProduit()">Enregistrer dans le stock</button>
         </div>
+
+        <label>Sélectionner le produit :</label>
+        <select id="select-produit-mouvement"></select>
+
+        <div class="grid-2">
+            <div>
+                <label style="color: #2f855a;">📥 Ce qui ENTRE :</label>
+                <input type="number" id="mouv-entre" value="0" min="0">
+            </div>
+            <div>
+                <label style="color: #c53030;">📤 Ce qui SORT :</label>
+                <input type="number" id="mouv-sorte" value="0" min="0">
+            </div>
+        </div>
+        <button class="btn-mouvement" onclick="validerMouvement()">Valider le mouvement</button>
+    </div>
+
+    <div class="card" style="border-top: 4px solid #0b69a3;">
+        <h2>2. Espace Boss (Prix)</h2>
+        <label>Choisir le produit :</label>
+        <select id="select-produit-prix"></select>
+        
+        <div class="grid-2">
+            <div>
+                <label>Prix en Dollar ($) :</label>
+                <input type="number" id="boss-usd" value="0" step="0.01">
+            </div>
+            <div>
+                <label>OU Prix direct en MT :</label>
+                <input type="number" id="boss-mt" value="0" step="0.5">
+            </div>
+        </div>
+        <button class="btn-boss" onclick="validerPrixBoss()">Fixer le prix</button>
     </div>
 
     <div class="card">
-        <h2>4. Aperçu du Stock Actuel</h2>
+        <h2>3. État des Stocks Réels & Rapport</h2>
+        
         <table>
             <thead>
                 <tr>
-                    <th>Matériau</th>
-                    <th>Prix Usine</th>
+                    <th>Produit</th>
+                    <th>Prix Final</th>
+                    <th>Disponible</th>
                 </tr>
             </thead>
-            <tbody id="tableau-stock">
-                <tr><td><b>Fer à béton 12mm</b></td><td>750.00 $</td></tr>
-                <tr><td><b>Ciment Dugongo 42.5</b></td><td>280.00 $</td></tr>
-            </tbody>
+            <tbody id="table-corps"></tbody>
         </table>
+
+        <h3 style="font-size: 0.9rem; margin-top: 20px; color: #486581;">📋 Rapport Automatique du Jour :</h3>
+        <div class="report-box" id="rapport-journalier">Aucun mouvement aujourd'hui.</div>
     </div>
 
     <script>
-        // Code pour faire fonctionner la maquette en direct sur ton écran
-        function creerNouveauProduit() {
-            let nom = document.getElementById('new-nom').value;
-            let prix = document.getElementById('new-prix').value;
-            let stock = document.getElementById('new-stock').value;
+        let produits = {};
+        let historiqueRapport = [];
 
-            if(!nom || !prix || !stock) {
-                return alert("Veuillez remplir toutes les cases pour créer le produit.");
+        function rafraichirEcrans() {
+            let selectMouv = document.getElementById('select-produit-mouvement');
+            let selectPrix = document.getElementById('select-produit-prix');
+            let tableCorps = document.getElementById('table-corps');
+            
+            let memoireMouv = selectMouv.value;
+            let memoirePrix = selectPrix.value;
+
+            selectMouv.innerHTML = "";
+            selectPrix.innerHTML = "";
+            tableCorps.innerHTML = "";
+
+            for (let nom in produits) {
+                let p = produits[nom];
+                selectMouv.innerHTML += `<option value="${nom}">${nom} (${p.unite})</option>`;
+                selectPrix.innerHTML += `<option value="${nom}">${nom}</option>`;
+
+                let prixAffichage = "Non fixé";
+                if (p.prixMT > 0) {
+                    prixAffichage = p.prixMT + " MT";
+                } else if (p.prixUSD > 0) {
+                    prixAffichage = (p.prixUSD * 64.5).toFixed(2) + " MT ($" + p.prixUSD + ")";
+                }
+
+                tableCorps.innerHTML += `
+                    <tr>
+                        <td><b>${nom}</b></td>
+                        <td><span style="color:#2f855a; font-weight:bold;">${prixAffichage}</span></td>
+                        <td><span class="badge-stock">${p.stock} ${p.unite}</span></td>
+                    </tr>
+                `;
             }
 
-            // 1. Ajouter le produit dans le menu déroulant du contremaître
-            let select = document.getElementById('select-produit');
-            let option = document.createElement('option');
-            option.value = nom;
-            option.textContent = nom;
-            select.appendChild(option);
-
-            // 2. Ajouter le produit dans le tableau visuel
-            let tableau = document.getElementById('tableau-stock');
-            let ligne = document.createElement('tr');
-            ligne.innerHTML = "<td><b>" + nom + "</b></td><td>" + parseFloat(prix).toFixed(2) + " $</td>";
-            tableau.appendChild(ligne);
-
-            alert("Succès ! '" + nom + "' fait maintenant partie de ton catalogue. (Prochaine étape: Sauvegarde automatique globale sur Firestore)");
+            if(memoireMouv) selectMouv.value = memoireMouv;
+            if(memoirePrix) selectPrix.value = memoirePrix;
             
-            // Vider les cases
-            document.getElementById('new-nom').value = "";
-            document.getElementById('new-prix').value = "";
-            document.getElementById('new-stock').value = "";
+            genererRapport();
         }
 
-        function mettreAJourTaux() {
-            let t = document.getElementById('taux-dollar').value;
-            alert("Taux de référence fixé à : " + t + " MT.");
+        function ajouterNouveauProduit() {
+            let nom = document.getElementById('add-nom').value.trim();
+            let stockInit = parseInt(document.getElementById('add-stock').value) || 0;
+            let unite = document.getElementById('add-unite').value;
+
+            if (!nom) return alert("Écris le nom du produit !");
+            if (produits[nom]) return alert("Ce produit existe déjà !");
+
+            produits[nom] = { stock: stockInit, unite: unite, prixUSD: 0, prixMT: 0 };
+            
+            document.getElementById('add-nom').value = "";
+            document.getElementById('add-stock').value = "";
+            
+            rafraichirEcrans();
         }
 
-        function changerStock(action) {
-            let q = document.getElementById('mouvement-quantite').value;
-            let p = document.getElementById('select-produit').value;
-            if(!q) return alert("Tapez une quantité");
-            alert("Mouvement enregistré : " + action + " de " + q + " unités pour [" + p + "].");
+        function validerMouvement() {
+            let nom = document.getElementById('select-produit-mouvement').value;
+            let entre = parseInt(document.getElementById('mouv-entre').value) || 0;
+            let TechSortie = parseInt(document.getElementById('mouv-sorte').value) || 0;
+
+            if (!nom) return alert("Aucun produit sélectionné");
+            let p = produits[nom];
+
+            if (entre > 0) {
+                p.stock += entre;
+                historiqueRapport.push(`📥 ENTRÉE : +${entre} ${p.unite} pour [${nom}]`);
+            }
+            if (TechSortie > 0) {
+                if (p.stock < TechSortie) {
+                    alert(`Pas assez de stock ! Disponible : ${p.stock} ${p.unite}`);
+                    return;
+                }
+                p.stock -= TechSortie;
+                historiqueRapport.push(`📤 SORTIE : -${TechSortie} ${p.unite} pour [${nom}]`);
+            }
+
+            document.getElementById('mouv-entre').value = 0;
+            document.getElementById('mouv-sorte').value = 0;
+            rafraichirEcrans();
+        }
+
+        function validerPrixBoss() {
+            let nom = document.getElementById('select-produit-prix').value;
+            let usd = parseFloat(document.getElementById('boss-usd').value) || 0;
+            let mt = parseFloat(document.getElementById('boss-mt').value) || 0;
+
+            if (!nom) return alert("Sélectionne un produit");
+
+            produits[nom].prixUSD = usd;
+            produits[nom].prixMT = mt;
+            rafraichirEcrans();
+        }
+
+        function genererRapport() {
+            let box = document.getElementById('rapport-journalier');
+            if (historiqueRapport.length === 0) {
+                box.innerText = "Aucun mouvement aujourd'hui.";
+                return;
+            }
+            let texte = `Rapport automatique du ${new Date().toLocaleDateString('fr-FR')}\n=========================\n`;
+            historiqueRapport.forEach(l => texte += l + "\n");
+            texte += `=========================\nFin de session.`;
+            box.innerText = texte;
         }
     </script>
 </body>
